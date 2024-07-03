@@ -1,0 +1,32 @@
+export const getAllAppointments = CatchAsyncError(
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const isCacheExist = await redis.get("allAppointments");
+  
+        if (isCacheExist) {
+            console.log("hitting redis")
+          const appointments = JSON.parse(isCacheExist);
+          return res.status(200).json({
+            success: true,
+            appointments,
+          });
+        }else {
+            const appointments = await appointmentModel.find().sort({ createdAt: -1 }).populate("patient", "name age address").populate("doctor", "name");
+            console.log("hitting database")
+            await redis.set("allAppointments", JSON.stringify(appointments), "EX", 604800); 
+            res.status(200).json({
+                success: true,
+                appointments,
+       });
+        }
+        const appointments = await appointmentModel.find().sort({ createdAt: -1 }).populate("patient", " name age address").populate("doctor", "name");
+        
+        res.status(200).json({
+          success: true,
+          appointments,
+        });
+      } catch (error: any) {
+        return next(new ErrorHandler(error.message, 500));
+      }
+    }
+  );
