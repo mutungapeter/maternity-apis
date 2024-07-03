@@ -244,8 +244,10 @@ export const getUserInfo = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user_id = req.user?._id || "";
-      // const userId = (user_id as mongoose.Types.ObjectId).toString();
-      getUserById(user_id as string, res);
+      const userId = (user_id as mongoose.Types.ObjectId).toString();
+
+      //  const userId = req.user?._id;
+      getUserById(userId as string, res);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
