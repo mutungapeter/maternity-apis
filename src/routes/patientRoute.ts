@@ -23,7 +23,7 @@ patientRouter.put(
 );
 patientRouter.get(
   "/get-all-patients",
-  isAuthenticated,
+  // isAuthenticated,
   // authorizedRoles("doctor"),
   getAllPatients
 );
