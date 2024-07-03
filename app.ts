@@ -23,7 +23,7 @@ app.use(cookieParser());
 // cors => cross origin resource sharing
 app.use(
   cors({
-    origin: ["https://maternity-management-system.vercel.app/"],
+    origin: ["https://maternity-management-system.vercel.app", "http://localhost:3000"],
     credentials: true,
   })
 );
