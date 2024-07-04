@@ -10,6 +10,7 @@ import paymentRouter from "./src/routes/paymentRoute";
 import progressRouter from "./src/routes/progressRoute";
 import appointmentRouter from "./src/routes/appointmentRoute";
 import paymentTypeRouter from "./src/routes/paymentTypeRoute";
+import { rateLimit } from "express-rate-limit";
 
 
 require("dotenv").config();
@@ -27,6 +28,15 @@ app.use(
     credentials: true,
   })
 );
+
+// // api requests limit
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+//   standardHeaders: "draft-7", // Return rate limit info in the `RateLimit-*` headers
+//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+// });
+
 
 // app.use(cors());
 //testing api
@@ -55,4 +65,6 @@ app.all("*", (req: Request, res: Response, next: NextFunction) => {
   next(err);
 });
 
+
+// app.use(limiter);
 app.use(ErrorMiddleware);

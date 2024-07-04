@@ -72,7 +72,7 @@ export const getDoctorAppointments = CatchAsyncError(
     try {
         
       const {id }= req.params;
-   console.log(id)
+  //  console.log(id)
 
       // Validate the doctor ID
       if (!mongoose.Types.ObjectId.isValid(id)) {
