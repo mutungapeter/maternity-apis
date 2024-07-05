@@ -206,7 +206,7 @@ export const updateAccessToken = CatchAsyncError(
         return next(new ErrorHandler(message, 400));
       }
       const session = await redis.get(decoded.id as string);
-
+      console.log("hitting redis")
       if (!session) {
         return next(new ErrorHandler("Please login for access this resources!", 400));
       }
@@ -232,6 +232,7 @@ export const updateAccessToken = CatchAsyncError(
       res.status(200).json({
         status: "success",
         accessToken,
+        user,
       });
     } catch (error: any) {
       return;
