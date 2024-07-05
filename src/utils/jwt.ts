@@ -48,7 +48,7 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
 
   //upload session to redis
   // redis.set(userId, JSON.stringify(user) as any);
-  redis.set(user._id as string, JSON.stringify(user) as any);
+  redis.set(user?._id as string , JSON.stringify(user) as any);
 
   //only set secure true in production
   if (process.env.NODE_ENV === "production") {
