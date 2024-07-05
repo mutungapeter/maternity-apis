@@ -30,7 +30,7 @@ export const ErrorMiddleware= (
 
   //JWT expired error
   if (err.name === "TokenExpiredError") {
-    const message = `Session expired please refresh and try again`;
+    const message = `Json web token is expired please refresh and try again`;
     err = new ErrorHandler(message, 400);
   }
 

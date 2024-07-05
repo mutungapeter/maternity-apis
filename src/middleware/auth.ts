@@ -3,6 +3,7 @@ import { CatchAsyncError } from "./catchAsyncErrors";
 import ErrorHandler from "../utils/ErrorHandler";
 import jwt, {JwtPayload } from "jsonwebtoken";
 import { redis } from "../utils/redis";
+import { updateAccessToken } from "../controllers/userController";
 
 //authenticated user
 export const isAuthenticated = CatchAsyncError(async(req:Request, res:Response, next:NextFunction)=>{
@@ -13,22 +14,46 @@ export const isAuthenticated = CatchAsyncError(async(req:Request, res:Response, 
         return next(new ErrorHandler("Please login to access this resource", 400));
     }
     const decoded = jwt.verify(access_token, process.env.ACCESS_TOKEN as string) as JwtPayload;
-    const user = await redis.get(decoded.id);
-
-    if (!user) {
-      return next(
-        new ErrorHandler("Please login to access this resource", 400)
-      );
+    // const decoded = jwt.decode(access_token) as JwtPayload
+    if (!decoded) {
+      return next(new ErrorHandler("access token is not valid", 400));
     }
 
-    req.user = JSON.parse(user);
+    // const user = await redis.get(decoded.id);
 
-    next();
-    if(!user){
-        return next(new ErrorHandler("user not found", 400));
-    }
-    req.user=JSON.parse(user);
+    // if (!user) {
+    //   return next(
+    //     new ErrorHandler("Please login to access this resource", 400)
+    //   );
+    // }
 
+    // req.user = JSON.parse(user);
+
+    // next();
+    // if(!user){
+    //     return next(new ErrorHandler("user not found", 400));
+    // }
+    // req.user=JSON.parse(user);
+    if (decoded.exp && decoded.exp <= Date.now() / 1000) {
+        try {
+          await updateAccessToken(req, res, next);
+        } catch (error) {
+          return next(error);
+        }
+      } else {
+        const user = await redis.get(decoded.id);
+  
+        if (!user) {
+          return next(
+            new ErrorHandler("Please login to access this resource", 400)
+          );
+        }
+  
+        req.user = JSON.parse(user);
+  
+        next();
+      }
+  
 })
 
 // validate user role

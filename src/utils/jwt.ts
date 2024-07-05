@@ -44,10 +44,11 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
   const accessToken = user.SignAccessToken();
   const refreshToken = user.SignRefreshToken();
 
-  const userId = (user._id as mongoose.Types.ObjectId).toString();
+  // const userId = (user._id as mongoose.Types.ObjectId).toString();
 
   //upload session to redis
-  redis.set(userId, JSON.stringify(user) as any);
+  // redis.set(userId, JSON.stringify(user) as any);
+  redis.set(user._id as string, JSON.stringify(user) as any);
 
   //only set secure true in production
   if (process.env.NODE_ENV === "production") {

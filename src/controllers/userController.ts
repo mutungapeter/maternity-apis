@@ -193,49 +193,82 @@ export const logoutUser = CatchAsyncError(
 );
 
 //update access token
+// export const updateAccessToken = CatchAsyncError(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const refresh_token = req.cookies.refresh_token as string;
+//       const decoded = jwt.verify(
+//         refresh_token,
+//         process.env.REFRESH_TOKEN as string
+//       ) as JwtPayload;
+//       const message = "could not refresh token";
+//       if (!decoded) {
+//         return next(new ErrorHandler(message, 400));
+//       }
+//       const session = await redis.get(decoded.id as string);
+//       console.log("hitting redis")
+//       if (!session) {
+//         return next(new ErrorHandler("Please login for access this resources!", 400));
+//       }
+//       const user = JSON.parse(session);
+//       const accessToken = jwt.sign(
+//         { id: user._id },
+//         process.env.ACCESS_TOKEN as string,
+//         {
+//           expiresIn: "5m",
+//         }
+//       );
+//       const refreshToken = jwt.sign(
+//         { id: user._id },
+//         process.env.REFRESH_TOKEN as string,
+//         {
+//           expiresIn: "3d",
+//         }
+//       );
+//       req.user = user;
+//       await redis.set(user._id, JSON.stringify(user), "EX", 604800); // 7days
+//       res.cookie("access_token", accessToken, accessTokenOptions);
+//       res.cookie("refresh_token", refreshToken, refreshTokenOptions);
+//       res.status(200).json({
+//         status: "success",
+//         accessToken,
+//         user,
+//       });
+//     } catch (error: any) {
+//       return;
+//     }
+//   }
+// );
 export const updateAccessToken = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const refresh_token = req.cookies.refresh_token as string;
+      const refresh_token = req.headers["refresh-token"] as string;
       const decoded = jwt.verify(
         refresh_token,
         process.env.REFRESH_TOKEN as string
       ) as JwtPayload;
-      const message = "could not refresh token";
+
+      const message = "Could not refresh token";
       if (!decoded) {
         return next(new ErrorHandler(message, 400));
       }
       const session = await redis.get(decoded.id as string);
-      console.log("hitting redis")
+
       if (!session) {
-        return next(new ErrorHandler("Please login for access this resources!", 400));
+        return next(
+          new ErrorHandler("Please login for access this resources!", 400)
+        );
       }
+
       const user = JSON.parse(session);
-      const accessToken = jwt.sign(
-        { id: user._id },
-        process.env.ACCESS_TOKEN as string,
-        {
-          expiresIn: "5m",
-        }
-      );
-      const refreshToken = jwt.sign(
-        { id: user._id },
-        process.env.REFRESH_TOKEN as string,
-        {
-          expiresIn: "3d",
-        }
-      );
+
       req.user = user;
+
       await redis.set(user._id, JSON.stringify(user), "EX", 604800); // 7days
-      res.cookie("access_token", accessToken, accessTokenOptions);
-      res.cookie("refresh_token", refreshToken, refreshTokenOptions);
-      res.status(200).json({
-        status: "success",
-        accessToken,
-        user,
-      });
+
+      return next();
     } catch (error: any) {
-      return;
+      return next(new ErrorHandler(error.message, 400));
     }
   }
 );
@@ -246,8 +279,6 @@ export const getUserInfo = CatchAsyncError(
     try {
       const user_id = req.user?._id || "";
       const userId = (user_id as mongoose.Types.ObjectId).toString();
-
-      //  const userId = req.user?._id;
       getUserById(userId as string, res);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
