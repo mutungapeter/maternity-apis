@@ -16,8 +16,8 @@ import { rateLimit } from "express-rate-limit";
 require("dotenv").config();
 
 //body parser
-app.use(express.json({ limit: "50mb" }));
-
+app.use(express.json());
+// { limit: "50mb" }
 //cookie parser
 app.use(cookieParser());
 

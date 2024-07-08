@@ -7,9 +7,10 @@ import { updateAccessToken } from "../controllers/userController";
 
 //authenticated user
 export const isAuthenticated = CatchAsyncError(async(req:Request, res:Response, next:NextFunction)=>{
-    const access_token = req.cookies.access_token as string;
+    // const access_token = req.cookies.access_token as string;
+    const access_token = req.headers["access-token"] as string;
     // console.log("Cookies: ", req.cookies);
-    // console.log("Access Token: ", access_token);
+    console.log("Access Token: ", access_token);
     if(!access_token){
         return next(new ErrorHandler("Please login to access this resource", 400));
     }
